@@ -125,7 +125,7 @@ function updateAnnotationsWithPositions( annotations, positions, { removeAnnotat
  *
  * @param {Object} The props with annotations in them.
  *
- * @return {Function} The prepareEditableTree.
+ * @return {Function} The prepareEditableTree function.
  */
 const createPrepareEditableTree = memize( ( props ) => {
 	const { annotations } = props;
@@ -154,6 +154,19 @@ const getAnnotationObject = memize( ( annotations ) => {
 	};
 } );
 
+/**
+ * Create onChangeEditableValue based on the annotation props.
+ *
+ * @return {Function} The onChangeEditableValue function.
+ */
+const createOnChangeEditableValue = memize( ( removeAnnotation, updateAnnotationRange, annotations ) => {
+	return ( formats ) => {
+		const positions = retrieveAnnotationPositions( formats );
+
+		updateAnnotationsWithPositions( annotations, positions, { removeAnnotation, updateAnnotationRange } );
+	};
+} );
+
 export const annotation = {
 	name: FORMAT_NAME,
 	title: __( 'Annotation' ),
@@ -177,11 +190,8 @@ export const annotation = {
 		};
 	},
 	__experimentalCreateOnChangeEditableValue( props ) {
-		return ( formats ) => {
-			const positions = retrieveAnnotationPositions( formats );
-			const { removeAnnotation, updateAnnotationRange, annotations } = props;
+		const { removeAnnotation, updateAnnotationRange, annotations } = props;
 
-			updateAnnotationsWithPositions( annotations, positions, { removeAnnotation, updateAnnotationRange } );
-		};
+		return createOnChangeEditableValue( removeAnnotation, updateAnnotationRange, annotations );
 	},
 };
